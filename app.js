@@ -19,12 +19,8 @@ Both values above will be converted(coerced)  to a string data type. However if 
 
 This returns false because the === checks for both values and type. If either or not the same, then it returns false.  */
 
-var scores, roundScore, activePlayer;
-
-scores = [0,0];
-roundScore = 0;
-activePlayer = 0;
-
+//Declaring global variables
+var scores, roundScore, activePlayer, gamePlaying;
 
 /*
  For Practice
@@ -37,7 +33,7 @@ activePlayer = 0;
 // var x = document.querySelector('#current-' + activePlayer).textContent;
 // console.log(x);
 
-document.querySelector('.dice').style.display = 'none';
+//document.querySelector('.dice').style.display = 'none';
 
 
 // Here down below document.querySelector('.btn-roll') will select an element basis on class .btn-roll send to it and
@@ -53,14 +49,15 @@ document.querySelector('.dice').style.display = 'none';
 
 // 2nd case --we call this anonymous function because it dont have any name
 
+/* this will go in init function for DRY code
 document.getElementById('score-0').textContent = '0';
 document.getElementById('score-1').textContent = '0';
 document.getElementById('current-0').textContent = '0';
 document.getElementById('current-1').textContent = '0';
-
+*/
 //below down is anonymous function and it can only be used in this eventListener, not anywhere else because it dont have any name
 document.querySelector('.btn-roll').addEventListener('click', function () {
-
+   if(gamePlaying) {
       // Roll the Dice and get random number
       var dice = Math.floor(Math.random() * 6) + 1;
 
@@ -79,6 +76,8 @@ document.querySelector('.btn-roll').addEventListener('click', function () {
           roundScore += dice;
           document.querySelector('#current-' + activePlayer).textContent = roundScore;
       }
+   }
+    
 });
 
 
@@ -96,25 +95,29 @@ document.querySelector('.btn-hold').addEventListener('click', function() {
     */
 
 
+    if(gamePlaying) {
+          //Add current score to the global score
+          scores[activePlayer] += roundScore;
 
-    //Add current score to the global score
-      scores[activePlayer] += roundScore;
+          //Update the UI
+           document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
+      
+          //Check if the player won the game
+            if(scores[activePlayer] >= 20){
+             document.querySelector('#name-' + activePlayer).textContent = 'Winner';
+             document.querySelector('.dice').style.display = 'none';
+      
+            //  what toggle will do here is as winner class is not in '.player-'+ activePlayer +'-panel' (say activePlayer is 1) so it will add that class and as we do hold that will make the activeplayer to change to activePlayer to 0  and active class will be on activePlayer 0 but toggle will add the active class if it is not there at activePlayer.
+             document.querySelector('.player-'+ activePlayer +'-panel').classList.toggle('winner');
+             document.querySelector('.player-'+ activePlayer +'-panel').classList.toggle('active');
+      
+             gamePlaying = false;
+            } else {   
+           //Next Player
+             nextPlayer();
+            }
+    }
 
-    //Update the UI
-     document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
-
-    //Check if the player won the game
-      if(scores[activePlayer] >= 20){
-       document.querySelector('#name-' + activePlayer).textContent = 'Winner';
-       document.querySelector('.dice').style.display = 'none';
-
-      //  what toggle will do here is as winner class is not in '.player-'+ activePlayer +'-panel' (say activePlayer is 1) so it will add that class and as we do hold that will make the activeplayer to change to activePlayer to 0  and active class will be on activePlayer 0 but toggle will add the active class if it is not there at activePlayer.
-       document.querySelector('.player-'+ activePlayer +'-panel').classList.toggle('winner');
-       document.querySelector('.player-'+ activePlayer +'-panel').classList.toggle('active');
-      } else {   
-     //Next Player
-       nextPlayer();
-      }
 });
 
 function nextPlayer() {
@@ -140,4 +143,32 @@ function nextPlayer() {
   
   // Now as soon as the new player get chance we want to hide the dice
   document.querySelector('.dice').style.display = 'none';
+}
+
+//document.querySelector('.btn-new').addEventListener('click', init()); we cant do this here beacuse it will call the function even if the click event woudnt occur on the button
+
+//init without parenthesis will only invoke the function when the click event will happen oh the button
+document.querySelector('.btn-new').addEventListener('click', init);
+
+function init() {
+  scores = [0,0];
+  activePlayer = 0;
+  roundScore = 0;
+  gamePlaying = true;
+
+  document.querySelector('.dice').style.display = 'none';
+
+  document.getElementById('score-0').textContent = '0';
+  document.getElementById('score-1').textContent = '0';
+  document.getElementById('current-0').textContent = '0';
+  document.getElementById('current-1').textContent = '0';
+
+  document.getElementById('name-0').textContent = 'Player 1';
+  document.getElementById('name-1').textContent = 'Player 2';
+
+  document.querySelector('.player-0-panel').classList.remove('winner');
+  document.querySelector('.player-1-panel').classList.remove('winner');
+  document.querySelector('.player-0-panel').classList.remove('active');
+  document.querySelector('.player-1-panel').classList.remove('active');
+  document.querySelector('.player-0-panel').classList.add('active');
 }
